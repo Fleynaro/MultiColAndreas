@@ -1,5 +1,7 @@
 #ColAndreas
 
+In this separate version of the plugin multiworld and attaching objects futures were implemented.
+
 ColAndreas is a plugin for SA-MP which creates a simulation of the San Andreas world. Using the [Bullet Physics library](http://bulletphysics.org/), ColAndreas
 gives the server knowledge of the game environment itself.
 
