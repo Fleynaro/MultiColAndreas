@@ -6,6 +6,7 @@
 #include <vector>
 
 #include <thread>
+#include <mutex>
 void testFunct();
 
 using namespace std;
@@ -57,7 +58,7 @@ PLUGIN_EXPORT bool PLUGIN_CALL Load(void **ppData)
 	logprintf("   " CA_VERSION);
 	logprintf("*********************");
 
-
+	collisionWorld->colandreasInitMap();
 
 
 	//test
@@ -107,6 +108,26 @@ void testFunct()
 	}
 }
 
+//Function export for other plugins(for example PathFinderCA)
+extern "C" {
+	EXPORT mutex *CA_GetMutex()
+	{
+		return collisionWorld->objectManager->g_lock;
+	}
+
+	EXPORT int CA_RayCastLine(float x1, float y1, float z1, float x2, float y2, float z2, float &x3, float &y3, float &z3, int world)
+	{
+		uint16_t Model = 0;
+		btVector3 Result;
+		CA_GetMutex()->lock();
+		collisionWorld->performRayTest(btVector3(x1, y1, z1), btVector3(x2, y2, z2), Result, Model, world);
+		CA_GetMutex()->unlock();
+		x3 = Result.getX();
+		y3 = Result.getY();
+		z3 = Result.getZ();
+		return Model;
+	}
+}
 
 // Plugin unload
 PLUGIN_EXPORT void PLUGIN_CALL Unload()

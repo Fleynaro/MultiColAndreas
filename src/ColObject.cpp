@@ -255,6 +255,7 @@ ObjectManager::ObjectManager()
 	{
 		slotUsed[i] = false;
 	}
+	g_lock = new mutex();
 }
 
 int ObjectManager::attachObjectToObject(const uint16_t index1, const uint16_t index2, btVector3& position, btQuaternion& rotation)
@@ -262,22 +263,29 @@ int ObjectManager::attachObjectToObject(const uint16_t index1, const uint16_t in
 	if (!validObjectManager(index1) || !validObjectManager(index2) || mapObjects[index1]->isAttched() || mapObjects[index2]->isAttched()) return 0;
 
 	//logprintf("ObjectManager attachObjectToObject: index1,2=%i,%i; pos=%f,%f,%f, rot=%f,%f,%f,%f", index1, index2, position.getX(), position.getY(), position.getZ(), rotation.getX(), rotation.getY(), rotation.getZ(), rotation.getW());
+	g_lock->lock();
 	mapObjects[index1]->attachToMapObject(mapObjects[index2], position, rotation);
+	g_lock->unlock();
 	return 1;
 }
  
 int ObjectManager::detach(const uint16_t index)
 {
 	if (!validObjectManager(index) || !mapObjects[index]->isAttched()) return 0;
+	g_lock->lock();
 	mapObjects[index]->detach();
+	g_lock->unlock();
 	return 1;
 }
 
 int ObjectManager::setExtraID(const uint16_t index, int type, int data)
 {
+	g_lock->lock();
 	if (slotUsed[index] && type >= 0 && type < 10)
 	{
+		g_lock->lock();
 		mapObjects[index]->tracker->extraData[type] = data;
+		g_lock->unlock();
 		return 1;
 	}
 	return 0;
@@ -300,7 +308,9 @@ int ObjectManager::addObjectManager(ColAndreasMapObject* mapObject)
 		if (!slotUsed[i])
 		{
 			slotUsed[i] = true;
+			g_lock->lock();
 			mapObjects[i] = mapObject;
+			g_lock->unlock();
 			mapObjects[i]->tracker->realIndex = i;
 			return i;
 		}
@@ -313,7 +323,9 @@ int ObjectManager::removeObjectManager(const uint16_t index)
 	if (slotUsed[index])
 	{
 		slotUsed[index] = false;
+		g_lock->lock();
 		delete mapObjects[index];
+		g_lock->unlock();
 		return 1;
 	}
 	return 0;
@@ -332,7 +344,9 @@ int ObjectManager::setObjectPosition(const uint16_t index, btVector3& position)
 {
 	if (slotUsed[index])
 	{
+		g_lock->lock();
 		mapObjects[index]->setMapObjectPosition(position);
+		g_lock->unlock();
 		return 1;
 	}
 	return 0;
@@ -342,7 +356,9 @@ int ObjectManager::setObjectRotation(const uint16_t index, btQuaternion& rotatio
 {
 	if (slotUsed[index])
 	{
+		g_lock->lock();
 		mapObjects[index]->setMapObjectRotation(rotation);
+		g_lock->unlock();
 		return 1;
 	}
 	return 0;

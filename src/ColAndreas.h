@@ -6,12 +6,14 @@
 #pragma warning (disable:4005 700 996)
 #if (defined(WIN32) || defined(_WIN32) || defined(_WIN64))
 #include <windows.h>
+#define EXPORT __declspec(dllexport)
 #else
 #include "pthread.h"
 #endif
 #include "sstream"
 #if defined(LINUX) || defined(FREEBSD) || defined(__FreeBSD__) || defined(__OpenBSD__)
 #include "stdarg.h"
+#define EXPORT __attribute__((visibility("default")))
 #endif
 
 #ifndef WIN32
@@ -31,6 +33,5 @@ extern bool colInit;
 extern bool colDataLoaded;
 extern cell nullAddress;
 extern logprintf_t				logprintf;
-
 
 #endif

@@ -5,6 +5,7 @@
 #include "ColObject.h"
 #include "ColAndreas.h"
 #include <map>
+#include <mutex>
 
 #define ALL_WORLDS -1
 
@@ -36,7 +37,7 @@ public:
 
 	RemovedBuildingManager* removedManager;
 	ObjectManager* objectManager;
-
+	
 	// Converts GTA rotations to quaternion
 	btScalar getDist3D(const btVector3& p1, const btVector3& p2);
 	void EulerToQuat(btVector3& rotation, btQuaternion& result);
