@@ -21,6 +21,7 @@ bool ReadColandreasDatabaseFile(std::string FileLocation)
 	ifstream ColAndreasBinaryfile;
 
 	ColAndreasBinaryfile.open(FileLocation, ios::in | ios::binary);
+	Sleep(2000);
 
 	if (ColAndreasBinaryfile.is_open()) {
 		ColAndreasBinaryfile.seekg(0, ColAndreasBinaryfile.end);
@@ -80,6 +81,9 @@ bool ReadColandreasDatabaseFile(std::string FileLocation)
 							for (uint16_t j = 0; j < CollisionModels[i].FaceCount; j++) {
 								GetBytes(buffer, CollisionModels[i].FacesData[j], FileIndex, sizeof(structFacesData));
 							}
+						}
+						if (CollisionModels[i].Modelid <= 600) {
+							logprintf("veh exists!");
 						}
 					}
 				}

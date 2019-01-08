@@ -1,7 +1,16 @@
+<<<<<<< HEAD
 LIBRARY	"ColAndreas"
 EXPORTS
 	Supports
 	Load
 	Unload
 	AmxLoad
+=======
+LIBRARY	"ColAndreas"
+EXPORTS
+	Supports
+	Load
+	Unload
+	AmxLoad
+>>>>>>> d7537e9c90cf6bd17408e3a71e7f8db631f3cd78
 	AmxUnload
