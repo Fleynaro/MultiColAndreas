@@ -17,7 +17,6 @@
 #endif
 
 #ifndef WIN32
-typedef unsigned long DWORD;
 #define MAX_PATH 250
 #endif
 
@@ -33,4 +32,6 @@ extern bool colInit;
 extern bool colDataLoaded;
 extern cell nullAddress;
 extern logprintf_t				logprintf;
+extern cell nullAddress;
+extern void **ppPluginData;
 #endif

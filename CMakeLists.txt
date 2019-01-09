@@ -15,6 +15,7 @@ endif(NOT CMAKE_BUILD_TYPE)
 
 option(BuildWizard "Compile the Wizard application." OFF)
 
+set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -DMY_DEBUG")
 if(WIN32)
 	add_definitions(-DWIN32 -D_WIN32)
 

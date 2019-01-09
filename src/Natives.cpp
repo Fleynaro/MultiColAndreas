@@ -17,7 +17,7 @@ cell AMX_NATIVE_CALL ColAndreasNatives::CA_Init(AMX *amx, cell *params)
 			logprintf("Loading Map.");
 			collisionWorld->colandreasInitMap();
 			colInit = true;
-			logprintf("Loaded Map.                             ");
+			logprintf("Loaded Map.");
 			return 1;
 		}
 		else
@@ -329,6 +329,19 @@ cell AMX_NATIVE_CALL ColAndreasNatives::CA_CreateObject(AMX *amx, cell *params)
 
 	// Model had no collision
 	return -1;
+}
+
+
+cell AMX_NATIVE_CALL ColAndreasNatives::CA_AddVehicle(AMX * amx, cell * params)
+{
+	uint16_t index = static_cast<uint16_t>(params[1]);
+	collisionWorld->entityManager->addEntity(new Entity::Vehicle(index));
+	return 1;
+}
+
+cell AMX_NATIVE_CALL ColAndreasNatives::CA_RemoveVehicle(AMX * amx, cell * params)
+{
+	return cell AMX_NATIVE_CALL();
 }
 
 

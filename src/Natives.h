@@ -33,5 +33,9 @@ public:
 	// Extended natives
 	static cell AMX_NATIVE_CALL CA_RayCastLineEx(AMX *amx, cell *params);
 	static cell AMX_NATIVE_CALL CA_RayCastLineAngleEx(AMX *amx, cell *params);
+
+	//MultiColAndreas
+	static cell AMX_NATIVE_CALL CA_AddVehicle(AMX *amx, cell *params);
+	static cell AMX_NATIVE_CALL CA_RemoveVehicle(AMX *amx, cell *params);
 };
 #endif

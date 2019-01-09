@@ -82,9 +82,11 @@ bool ReadColandreasDatabaseFile(std::string FileLocation)
 								GetBytes(buffer, CollisionModels[i].FacesData[j], FileIndex, sizeof(structFacesData));
 							}
 						}
-						if (CollisionModels[i].Modelid <= 600) {
-							logprintf("veh exists!");
+					#if DEBUG
+						if (CollisionModels[i].Modelid <= 611) {
+							logprintf("veh exists %i!", CollisionModels[i].Modelid);
 						}
+					#endif
 					}
 				}
 				

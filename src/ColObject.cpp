@@ -469,3 +469,36 @@ uint16_t GetModelRef(uint16_t model)
 	else
 		return 65535;
 }
+
+
+
+
+void EntityManager::addEntity(Entity * entity)
+{
+	this->entities[this->nextEntityInsert] = entity;
+	this->nextEntityInsert++;
+}
+
+void EntityManager::removeEntity(Entity * entity)
+{
+	for (int i = 0; i != this->nextEntityInsert; i++) {
+		if (this->entities[i] == entity) {
+			this->nextEntityInsert--;
+			this->entities[i] = this->entities[this->nextEntityInsert];
+			delete entity;
+			return;
+		}
+	}
+}
+
+void EntityManager::executeUpdate()
+{
+	for (int i = 0; i != this->nextEntityInsert; i++) {
+		Entity *entity = this->entities[i];
+		if (entity->isValid()) {
+			this->removeEntity(entity);
+			continue;
+		}
+		entity->update();
+	}
+}

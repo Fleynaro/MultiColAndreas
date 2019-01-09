@@ -37,6 +37,7 @@ public:
 
 	RemovedBuildingManager* removedManager;
 	ObjectManager* objectManager;
+	EntityManager* entityManager;
 	
 	// Converts GTA rotations to quaternion
 	btScalar getDist3D(const btVector3& p1, const btVector3& p2);

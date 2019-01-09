@@ -8,6 +8,7 @@ ColAndreasWorld::ColAndreasWorld()
 	solver = new btSequentialImpulseConstraintSolver;
 	removedManager = new RemovedBuildingManager();
 	objectManager = new ObjectManager();
+	entityManager = new EntityManager();
 }
 
 btDynamicsWorld* ColAndreasWorld::GetDynamicWorld(int world)
@@ -31,6 +32,9 @@ ColAndreasWorld::~ColAndreasWorld()
 {
 	if (objectManager != NULL)
 		delete removedManager;
+
+	if (entityManager != NULL)
+		delete entityManager;
 
 	if (removedManager != NULL)
 		delete removedManager;

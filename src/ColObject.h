@@ -71,6 +71,10 @@ public:
 	void detach();
 	bool isAttched();
 	ColAndreasObjectTracker* tracker;
+
+	btRigidBody* getRigidBody() {
+		return this->colMapRigidBody;
+	}
 private:
 	// Object Data
 	btRigidBody* colMapRigidBody;
@@ -140,6 +144,22 @@ typedef struct {
 	btVector3 pos;
 	btScalar dist;
 } btMultiCast;
+
+
+
+#include "Entity.h"
+#define MAX_PLAYERS 1000
+#define MAX_VEHICLES 2000
+class EntityManager
+{
+public:
+	void addEntity(Entity *entity);
+	void removeEntity(Entity *entity);
+	void executeUpdate();
+private:
+	Entity *entities[MAX_PLAYERS + MAX_VEHICLES];
+	uint16_t nextEntityInsert;
+};
 
 
 #endif

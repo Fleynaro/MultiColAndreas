@@ -16,12 +16,14 @@ using namespace std;
 #include "DynamicWorld.h"
 #include "Natives.h"
 #include <chrono>
+#include "NetGame.h"
 
 bool colInit = false;
 bool colDataLoaded = false;
 cell nullAddress = NULL;
+void **ppPluginData;
 
-ColAndreasWorld* collisionWorld;
+ColAndreasWorld* collisionWorld = NULL;
 
 logprintf_t				logprintf;
 
@@ -30,6 +32,7 @@ extern void *pAMXFunctions;
 // Plugin Load
 PLUGIN_EXPORT bool PLUGIN_CALL Load(void **ppData)
 {
+	ppPluginData = ppData;
 	pAMXFunctions = ppData[PLUGIN_DATA_AMX_EXPORTS];
 	logprintf = (logprintf_t)ppData[PLUGIN_DATA_LOGPRINTF];
 
@@ -171,18 +174,26 @@ AMX_NATIVE_INFO PluginNatives[] =
 	// Extended Natives
 	{ "CA_RayCastLineEx", ColAndreasNatives::CA_RayCastLineEx },
 	{ "CA_RayCastLineAngleEx", ColAndreasNatives::CA_RayCastLineAngleEx },
+
+	//MultiColAndreas
+	{ "CA_AddVehicle",		ColAndreasNatives::CA_AddVehicle },
+	{ "CA_RemoveVehicle",	ColAndreasNatives::CA_RemoveVehicle },
 	{ 0, 0 }
 };
 
 // Plugin Export
 PLUGIN_EXPORT unsigned int PLUGIN_CALL Supports()
 {
-	return SUPPORTS_VERSION | SUPPORTS_AMX_NATIVES;
+	return SUPPORTS_VERSION | SUPPORTS_AMX_NATIVES | SUPPORTS_PROCESS_TICK;
 }
 
-
+bool amxLoad = false;
 PLUGIN_EXPORT int PLUGIN_CALL AmxLoad(AMX *amx)
 {
+	int(*pfn_GetNetGame)(void) = (int(*)(void))ppPluginData[PLUGIN_DATA_NETGAME];
+	NetGame::getInstance().Init(pfn_GetNetGame());
+	
+	amxLoad = true;
 	return amx_Register(amx, PluginNatives, -1);
 }
 
@@ -190,4 +201,17 @@ PLUGIN_EXPORT int PLUGIN_CALL AmxLoad(AMX *amx)
 PLUGIN_EXPORT int PLUGIN_CALL AmxUnload(AMX *amx)
 {
 	return AMX_ERR_NONE;
+}
+
+int ticked = 1;
+PLUGIN_EXPORT void PLUGIN_CALL ProcessTick()
+{
+	if (ticked == 200) {
+		if (amxLoad)
+		{
+			collisionWorld->entityManager->executeUpdate();
+		}
+		ticked = 0;
+	}
+	ticked++;
 }

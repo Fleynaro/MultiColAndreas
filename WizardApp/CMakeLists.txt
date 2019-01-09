@@ -16,6 +16,7 @@ add_definitions(-DCA_VERSION="${CA_VERSION}" -DCA_DATABASE_VERSION=${CA_DATABASE
 include_directories(${CMAKE_BINARY_DIR} "${CMAKE_CURRENT_SOURCE_DIR}/include" "${CMAKE_BINARY_DIR}/WizardApp" ${Qt5Core_INCLUDE_DIRS} ${Qt5Gui_INCLUDE_DIRS} ${Qt5Widgets_INCLUDE_DIRS})
 
 link_directories("${_qt5_install_prefix}\\.." "${_qt5_install_prefix}\\..\\..\\plugins\\platforms")
+set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -DMY_DEBUG")
 	
 file(GLOB Wizard_SRC
 	"src/*.c"
