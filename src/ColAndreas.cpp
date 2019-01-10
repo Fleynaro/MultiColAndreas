@@ -7,7 +7,6 @@
 
 #include <thread>
 #include <mutex>
-void testFunct();
 
 using namespace std;
 
@@ -24,10 +23,16 @@ cell nullAddress = NULL;
 void **ppPluginData;
 
 ColAndreasWorld* collisionWorld = NULL;
-
-logprintf_t				logprintf;
-
+logprintf_t		logprintf;
 extern void *pAMXFunctions;
+
+
+
+// Plugin Export
+PLUGIN_EXPORT unsigned int PLUGIN_CALL Supports()
+{
+	return SUPPORTS_VERSION | SUPPORTS_AMX_NATIVES | SUPPORTS_PROCESS_TICK;
+}
 
 // Plugin Load
 PLUGIN_EXPORT bool PLUGIN_CALL Load(void **ppData)
@@ -60,55 +65,7 @@ PLUGIN_EXPORT bool PLUGIN_CALL Load(void **ppData)
 	logprintf("  ColAndreas Loaded");
 	logprintf("   " CA_VERSION);
 	logprintf("*********************");
-
-	//collisionWorld->colandreasInitMap();
-
-
-	//test
-	/*collisionWorld->colandreasInitMap();
-	int begin = GetTickCount();
-	uint16_t Model;
-	btVector3 result;
-	for (int i = 0; i < 1; i++) {
-		collisionWorld->performRayTest(btVector3(-2136.5, -2475.6, 100.5), btVector3(-2136.5, -2375.6, 0.5), result, Model);
-	}
-	logprintf("------------- complete for %i ms (%i) %f,%f,%f model= %i", GetTickCount() - begin, GetTickCount(), result.getX(), result.getY(), result.getZ(), Model);
-
-
-
-
-	int ca_obj = collisionWorld->createColAndreasMapObject(true, 2320, btQuaternion(0,0,0,1), btVector3(-2436.5, -2375.6, 0.5), 0);
-	thread th(testFunct);
-
-	while (true) {
-		logprintf("MAIN THREAD");
-		for (int i = 0; i < 200; i++) {
-			collisionWorld->performRayTest(btVector3(-2136.5, -2475.6, 100.5), btVector3(-2136.5, -2375.6, 0.5), result, Model);
-			collisionWorld->objectManager->setObjectPosition(ca_obj, btVector3(-2136.5, -2475.6, 100.5 - i / 1000.0));
-			if (Model == 0) {
-				logprintf("--- Model = 0");
-			}
-		}
-		this_thread::sleep_for(chrono::milliseconds(600));
-	}
-
-	th.join();*/
 	return true;
-}
-void testFunct()
-{
-	while (true) {
-		logprintf("SEPARETE THREAD");
-		uint16_t Model;
-		btVector3 result;
-		for (int i = 0; i < 100; i++) {
-			collisionWorld->performRayTest(btVector3(-2136.5, -2475.6, 100.5), btVector3(-2136.5, -2375.6, 0.5), result, Model);
-			if (Model == 0) {
-				logprintf("--- Model = 0");
-			}
-		}
-		this_thread::sleep_for(chrono::milliseconds(400));
-	}
 }
 
 //Function export for other plugins(for example PathFinderCA)
@@ -177,23 +134,22 @@ AMX_NATIVE_INFO PluginNatives[] =
 
 	//MultiColAndreas
 	{ "CA_AddVehicle",		ColAndreasNatives::CA_AddVehicle },
+	{ "CA_AddPlayer",		ColAndreasNatives::CA_AddPlayer },
 	{ "CA_RemoveVehicle",	ColAndreasNatives::CA_RemoveVehicle },
+	{ "CA_RemovePlayer",	ColAndreasNatives::CA_RemovePlayer },
+	{ "CA_ExecuteUpdate",	ColAndreasNatives::CA_ExecuteUpdate },
 	{ 0, 0 }
 };
 
-// Plugin Export
-PLUGIN_EXPORT unsigned int PLUGIN_CALL Supports()
-{
-	return SUPPORTS_VERSION | SUPPORTS_AMX_NATIVES | SUPPORTS_PROCESS_TICK;
-}
-
-bool amxLoad = false;
 PLUGIN_EXPORT int PLUGIN_CALL AmxLoad(AMX *amx)
 {
-	int(*pfn_GetNetGame)(void) = (int(*)(void))ppPluginData[PLUGIN_DATA_NETGAME];
-	NetGame::getInstance().Init(pfn_GetNetGame());
-	
-	amxLoad = true;
+	static bool bFirst = false;
+	if (!bFirst && !NetGame::getInstance().isInit()) {
+		int(*pfn_GetNetGame)(void) = (int(*)(void))ppPluginData[PLUGIN_DATA_NETGAME];
+		NetGame::getInstance().Init(pfn_GetNetGame());
+
+		bFirst = true;
+	}
 	return amx_Register(amx, PluginNatives, -1);
 }
 
@@ -203,15 +159,18 @@ PLUGIN_EXPORT int PLUGIN_CALL AmxUnload(AMX *amx)
 	return AMX_ERR_NONE;
 }
 
-int ticked = 1;
 PLUGIN_EXPORT void PLUGIN_CALL ProcessTick()
 {
-	if (ticked == 200) {
-		if (amxLoad)
+	//not working for a strange reason. help please who can!
+
+	/*static int ticked = 1;
+	logprintf("timer pass!");
+	if (ticked == 10) {
+		if (NetGame::getInstance().isInit())
 		{
 			collisionWorld->entityManager->executeUpdate();
 		}
 		ticked = 0;
 	}
-	ticked++;
+	ticked++;*/
 }

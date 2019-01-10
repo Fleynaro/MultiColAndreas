@@ -43,17 +43,22 @@ public:
 		return instance;
 	}
 
+	bool isInit() {
+		return this->init;
+	}
+
 	class Vehicle
 	{
 	public:
 		Vehicle() {};
-		Vehicle(DWORD_ vehOffset) : vehOffset(vehOffset) {};
+		Vehicle(DWORD_ vehOffset, int *vehWorld) : vehOffset(vehOffset), vehWorld(vehWorld){};
 		~Vehicle() {};
 		
 		bool isValid() {
 			return *(DWORD_*)this->vehOffset != 0;
 		}
 		int getModelId();
+		int getVirtualWorld();
 		CVector *getPos();
 		CVector *getVelocity();
 		CVector *getTurnSpeed();
@@ -62,18 +67,37 @@ public:
 		btQuaternion getRotationQuatFixed();
 	private:
 		DWORD_ vehOffset;
+		int * vehWorld;
 	};
 	NetGame::Vehicle getVehicle(int id);
+
 
 
 	class Player
 	{
 	public:
 		Player() {};
+		Player(DWORD_ playerOffset, int *playerWorld) : playerOffset(playerOffset), playerWorld(playerWorld){};
 		~Player() {};
 
+		bool isValid() {
+			return *(DWORD_*)this->playerOffset != 0;
+		}
+		int getSkinId();
+		int getVirtualWorld();
+		CVector *getPos();
+		CVector *getVelocity();
+		btQuaternion getRotation();
+	private:
+		DWORD_ playerOffset;
+		int * playerWorld;
 	};
+	NetGame::Player getPlayer(int id);
 private:
 	int vehArrayOffset;
+	int vehWorldArrayOffset;
+	int playerArrayOffset;
+	int playerWorldArrayOffset;
+	bool init = false;
 };
 

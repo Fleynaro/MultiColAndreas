@@ -12,6 +12,41 @@
 const btScalar DEG_TO_RAD = btScalar(0.0174532925);
 const btScalar RADIAN_TO_DEG = btScalar(57.29577951);
 
+
+
+template <class DstType, class SrcType> bool IsType(const SrcType* src) {
+	return dynamic_cast<const DstType*>(src) != nullptr;
+}
+
+#include "Entity.h"
+#define MAX_PLAYERS 1000
+#define MAX_VEHICLES 2000
+class EntityManager
+{
+public:
+	void addEntity(Entity *entity);
+	void removeEntity(uint16_t index);
+	template <typename T_Entity> void removeEntity(uint16_t id) {
+		for (int i = 0; i != this->nextEntityInsert; i++)
+		{
+			Entity *entity = this->entities[i];
+
+			if (IsType<T_Entity>(entity)) {
+				if (entity->getId() == id) {
+					this->removeEntity(i);
+					return;
+				}
+			}
+		}
+	}
+	void executeUpdate();
+private:
+	Entity *entities[MAX_PLAYERS + MAX_VEHICLES];
+	uint16_t nextEntityInsert;
+};
+
+
+
 struct ContactCollisionSensor : public btCollisionWorld::ContactResultCallback //collision sensor callback
 {
 	int collided;

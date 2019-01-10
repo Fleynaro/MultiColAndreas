@@ -43,8 +43,14 @@ public:
 class ColAndreasColObject
 {
 public:
-	ColAndreasColObject(uint16_t colindex, bool thirdparty);
+	ColAndreasColObject() {};
+	ColAndreasColObject(uint16_t colindex, bool thirdparty) {
+		createMesh(colindex, thirdparty);
+	}
 	~ColAndreasColObject();
+
+	void createMesh(uint16_t colindex, bool thirdparty);
+	void createSkinMesh(uint16_t skinid);
 	btCompoundShape* getCompoundShape();
 private:
 	// Object Data
@@ -144,22 +150,4 @@ typedef struct {
 	btVector3 pos;
 	btScalar dist;
 } btMultiCast;
-
-
-
-#include "Entity.h"
-#define MAX_PLAYERS 1000
-#define MAX_VEHICLES 2000
-class EntityManager
-{
-public:
-	void addEntity(Entity *entity);
-	void removeEntity(Entity *entity);
-	void executeUpdate();
-private:
-	Entity *entities[MAX_PLAYERS + MAX_VEHICLES];
-	uint16_t nextEntityInsert;
-};
-
-
 #endif

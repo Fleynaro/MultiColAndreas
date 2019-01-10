@@ -2,13 +2,16 @@
 
 
 #include "ColAndreas.h"
+#include "ColObject.h"
 #include "NetGame.h"
 
 class Entity
 {
 public:
 	Entity() {};
-	~Entity() {};
+	~Entity() {
+		delete this->colMap;
+	}
 	void update();
 	virtual void updateState() = 0;
 	virtual bool isValid() = 0;
@@ -38,9 +41,10 @@ public:
 		return &this->speed;
 	}
 	
-	btRigidBody* colMapRigidBody = NULL;
+	ColAndreasMapObject* colMap = NULL;
 	void setMapObjectPosition(btVector3& position);
 	void setMapObjectRotation(btQuaternion& rotation);
+
 	class Vehicle;
 	class Player;
 private:
@@ -48,6 +52,8 @@ private:
 	btVector3 pos;
 	btQuaternion rot;
 	btVector3 speed;
+	int world = 0;
+	int oldWorld = 0;
 };
 
 
@@ -75,8 +81,19 @@ public:
 class Entity::Player : public ::Entity
 {
 public:
-	Player() {};
+	Player(int id) {
+		this->setId(id);
+		this->player = NetGame::getInstance().getPlayer(id);
+		this->updateState();
+		this->createColObject();
+	};
 	~Player() {};
 	void createColObject() override;
-	void updateState();
+	void updateState() override;
+	bool isValid() {
+		return player.isValid();
+	}
+
+
+	NetGame::Player player;
 };

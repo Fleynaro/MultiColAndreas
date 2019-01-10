@@ -8,7 +8,7 @@
 std::vector <ColAndreasColObject*> colObjects;
 std::vector <btCompoundShape*> colConvex;
 
-ColAndreasColObject::ColAndreasColObject(uint16_t colindex, bool thirdparty = false)
+void ColAndreasColObject::createMesh(uint16_t colindex, bool thirdparty = false)
 {
 	colMapObject = new btCompoundShape();
 
@@ -51,6 +51,14 @@ ColAndreasColObject::ColAndreasColObject(uint16_t colindex, bool thirdparty = fa
 	}
 }
 
+void ColAndreasColObject::createSkinMesh(uint16_t skinid)
+{
+	colMapObject = new btCompoundShape();
+
+	btBoxShape *skinBox = new btBoxShape(btVector3(0.25,0.15,1.0));
+	colMapObject->addChildShape(btTransform(btQuaternion(0, 0, 0, 1), btVector3(0, 0, 0)), skinBox);
+}
+
 ColAndreasColObject::~ColAndreasColObject()
 {	
 	delete meshshape;
@@ -83,10 +91,22 @@ bool LoadCollisionData()
 			{
 				printf("\33Loading: %0.1f\r", ((double)i / ModelCount) * 100);
 			}
-			ColAndreasColObject* colObject = new ColAndreasColObject(i);
+			ColAndreasColObject* colObject = new ColAndreasColObject(i, false);
 			ColAndreasColObject* convex = new ColAndreasColObject(i, true); //true for convex mesh
 			colObjects.push_back(colObject);
 			colConvex.push_back(convex->getCompoundShape()); //storing convex bodies
+		}
+
+
+
+		//*********** add skin shape as col model ***********
+		ColAndreasColObject* colSkin = new ColAndreasColObject();
+		colSkin->createSkinMesh(0);
+		colObjects.push_back(colSkin);
+
+		int skinColIndex = ModelCount;
+		for (int i = 1; i < 312; i++) {
+			ModelRef[i] = skinColIndex;
 		}
 		return true;
 	}
@@ -468,37 +488,4 @@ uint16_t GetModelRef(uint16_t model)
 		return ModelRef[model];
 	else
 		return 65535;
-}
-
-
-
-
-void EntityManager::addEntity(Entity * entity)
-{
-	this->entities[this->nextEntityInsert] = entity;
-	this->nextEntityInsert++;
-}
-
-void EntityManager::removeEntity(Entity * entity)
-{
-	for (int i = 0; i != this->nextEntityInsert; i++) {
-		if (this->entities[i] == entity) {
-			this->nextEntityInsert--;
-			this->entities[i] = this->entities[this->nextEntityInsert];
-			delete entity;
-			return;
-		}
-	}
-}
-
-void EntityManager::executeUpdate()
-{
-	for (int i = 0; i != this->nextEntityInsert; i++) {
-		Entity *entity = this->entities[i];
-		if (entity->isValid()) {
-			this->removeEntity(entity);
-			continue;
-		}
-		entity->update();
-	}
 }

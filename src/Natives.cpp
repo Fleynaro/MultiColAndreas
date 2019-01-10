@@ -339,9 +339,34 @@ cell AMX_NATIVE_CALL ColAndreasNatives::CA_AddVehicle(AMX * amx, cell * params)
 	return 1;
 }
 
+cell AMX_NATIVE_CALL ColAndreasNatives::CA_AddPlayer(AMX * amx, cell * params)
+{
+	uint16_t index = static_cast<uint16_t>(params[1]);
+	collisionWorld->entityManager->addEntity(new Entity::Player(index));
+	return 1;
+}
+
 cell AMX_NATIVE_CALL ColAndreasNatives::CA_RemoveVehicle(AMX * amx, cell * params)
 {
-	return cell AMX_NATIVE_CALL();
+	uint16_t index = static_cast<uint16_t>(params[1]);
+	collisionWorld->entityManager->removeEntity<Entity::Vehicle>(index);
+	return 1;
+}
+
+cell AMX_NATIVE_CALL ColAndreasNatives::CA_RemovePlayer(AMX * amx, cell * params)
+{
+	uint16_t index = static_cast<uint16_t>(params[1]);
+	collisionWorld->entityManager->removeEntity<Entity::Player>(index);
+	return 1;
+}
+
+cell AMX_NATIVE_CALL ColAndreasNatives::CA_ExecuteUpdate(AMX * amx, cell * params)
+{
+	if (NetGame::getInstance().isInit())
+	{
+		collisionWorld->entityManager->executeUpdate();
+	}
+	return 1;
 }
 
 

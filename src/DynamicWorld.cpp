@@ -498,3 +498,34 @@ bool ColAndreasWorld::loadCollisionData()
 	}
 	return false;
 }
+
+
+
+
+
+void EntityManager::addEntity(Entity * entity)
+{
+	this->entities[this->nextEntityInsert] = entity;
+	this->nextEntityInsert++;
+}
+
+void EntityManager::removeEntity(uint16_t index)
+{
+	delete this->entities[index];
+
+	this->nextEntityInsert--;
+	this->entities[index] = this->entities[this->nextEntityInsert];
+	this->entities[this->nextEntityInsert] = NULL;
+}
+
+void EntityManager::executeUpdate()
+{
+	for (int i = 0; i != this->nextEntityInsert; i++) {
+		Entity *entity = this->entities[i];
+		if (!entity->isValid()) {
+			this->removeEntity(i);
+			continue;
+		}
+		entity->update();
+	}
+}
