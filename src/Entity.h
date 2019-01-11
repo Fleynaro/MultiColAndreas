@@ -29,7 +29,9 @@ public:
 		return &this->pos;
 	}
 	void setRot(btQuaternion *rot) {
-		this->rot = *rot;
+		if (abs(rot->getX()) <= 2.0 && abs(rot->getY()) <= 2.0 && abs(rot->getZ()) <= 2.0 && abs(rot->getW()) <= 2.0) {
+			this->rot = *rot;
+		}
 	}
 	btQuaternion *getRot() {
 		return &this->rot;
@@ -61,12 +63,7 @@ private:
 class Entity::Vehicle : public ::Entity
 {
 public:
-	Vehicle(int id) {
-		this->setId(id);
-		this->vehicle = NetGame::getInstance().getVehicle(id);
-		this->updateState();
-		this->createColObject();
-	};
+	Vehicle(int id);;
 	~Vehicle() {};
 	void createColObject() override;
 	void updateState() override;
@@ -81,12 +78,7 @@ public:
 class Entity::Player : public ::Entity
 {
 public:
-	Player(int id) {
-		this->setId(id);
-		this->player = NetGame::getInstance().getPlayer(id);
-		this->updateState();
-		this->createColObject();
-	};
+	Player(int id);;
 	~Player() {};
 	void createColObject() override;
 	void updateState() override;

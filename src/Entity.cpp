@@ -31,6 +31,16 @@ void Entity::setMapObjectRotation(btQuaternion& rotation)
 
 
 //VEHICLES
+Entity::Vehicle::Vehicle(int id) {
+	this->setId(id);
+	this->vehicle = NetGame::getInstance().getVehicle(id);
+	this->updateState();
+	if (!vehicle.wasOccupiedEver()) {
+		collisionWorld->EulerToQuat(btVector3(0, 0, vehicle.getSpawnedAngleZ()), this->rot);
+	}
+	this->createColObject();
+}
+
 void Entity::Vehicle::createColObject()
 {
 	collisionWorld->objectManager->g_lock->lock();
@@ -53,9 +63,10 @@ void Entity::Vehicle::updateState()
 	CVector *vel = this->vehicle.getVelocity();
 	this->setVel(&btVector3(vel->x, vel->y, vel->z));
 
-	btQuaternion rot = this->vehicle.getRotationQuatFixed();
-	this->setRot(&rot);
-
+	if (this->vehicle.hasDriver()) {
+		btQuaternion rot = this->vehicle.getRotationQuatFixed2();
+		this->setRot(&rot);
+	}
 	this->oldWorld = this->world;
 	this->world = this->vehicle.getVirtualWorld();
 }
@@ -63,7 +74,15 @@ void Entity::Vehicle::updateState()
 
 
 
+
 //PLAYERS
+Entity::Player::Player(int id) {
+	this->setId(id);
+	this->player = NetGame::getInstance().getPlayer(id);
+	this->updateState();
+	this->createColObject();
+}
+
 void Entity::Player::createColObject()
 {
 	collisionWorld->objectManager->g_lock->lock();
@@ -88,6 +107,8 @@ void Entity::Player::updateState()
 
 	btQuaternion rot = this->player.getRotation();
 	this->setRot(&rot);
+	/*btVector3 getAngle;
+	collisionWorld->QuatToEuler(rot, getAngle);*/
 
 	this->oldWorld = this->world;
 	this->world = this->player.getVirtualWorld();
