@@ -127,6 +127,7 @@ AMX_NATIVE_INFO PluginNatives[] =
 	{ "CA_GetModelBoundingBox", ColAndreasNatives::CA_GetModelBoundingBox },
 	{ "CA_SetObjectExtraID", ColAndreasNatives::CA_SetObjectExtraID },
 	{ "CA_GetObjectExtraID", ColAndreasNatives::CA_GetObjectExtraID },
+	{ "CA_FindShelter", ColAndreasNatives::CA_FindShelter },
 
 	// Extended Natives
 	{ "CA_RayCastLineEx", ColAndreasNatives::CA_RayCastLineEx },

@@ -6,6 +6,7 @@
 #include "ColAndreas.h"
 #include <map>
 #include <mutex>
+#include <algorithm>
 
 #define ALL_WORLDS -1
 
@@ -61,6 +62,15 @@ struct ContactCollisionSensor : public btCollisionWorld::ContactResultCallback /
 	}
 };
 
+
+struct ColAndreasMultiData
+{
+	btVector3 pos = btVector3(0,0,0);
+	btScalar dist = 0.0;
+	int modelId = 0;
+};
+
+
 class ColAndreasWorld
 {
 public:
@@ -86,10 +96,11 @@ public:
 	int performRayTestEx(const btVector3& Start, const btVector3& End, btVector3& Result, btQuaternion& Rotation, btVector3& Position, uint16_t& model, int world = 0);
 	int performRayTestAngle(const btVector3& Start, const btVector3& End, btVector3& Result, btScalar& RX, btScalar& RY, btScalar& RZ, uint16_t& model, int world = 0);
 	int performRayTestAngleEx(const btVector3& Start, const btVector3& End, btVector3& Result, btScalar& RX, btScalar& RY, btScalar& RZ, btQuaternion& Rotation, btVector3& Position, uint16_t& model, int world = 0);
-	int performRayTestAll(const btVector3& Start, const btVector3& End, btAlignedObjectArray < btVector3 >& Result, int ModelIDs[], int size, int world = 0);
+	int performRayTestAll(const btVector3& Start, const btVector3& End, ColAndreasMultiData *data, int size, int world = 0);
 	int performRayTestReflection(const btVector3& Start, const btVector3& End, btVector3& Position, btVector3& Result, uint16_t& model, int world = 0);
 	int performRayTestNormal(const btVector3& Start, const btVector3& End, btVector3& Result, btVector3& Normal, uint16_t& model, int world = 0);
 	int performContactTest(uint16_t modelid, btVector3& objectPos, btQuaternion& objectRot, int world = 0);
+	int findShelter(btVector3& pos1, btVector3 & pos2, btVector3& Result, int world = 0);
 	btDynamicsWorld* ColAndreasWorld::GetDynamicWorld(int world);
 
 	uint16_t createColAndreasMapObject(uint16_t addtomanager, uint16_t modelid, const btQuaternion& objectRot, const btVector3& objectPos, int world = 0);

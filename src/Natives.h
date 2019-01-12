@@ -29,6 +29,7 @@ public:
 	static cell AMX_NATIVE_CALL CA_SetObjectExtraID(AMX* amx, cell* params);
 	static cell AMX_NATIVE_CALL CA_GetObjectExtraID(AMX* amx, cell* params);
 	static cell AMX_NATIVE_CALL CA_ContactTest(AMX *amx, cell *params);
+	static cell AMX_NATIVE_CALL CA_FindShelter(AMX *amx, cell *params);
 
 	// Extended natives
 	static cell AMX_NATIVE_CALL CA_RayCastLineEx(AMX *amx, cell *params);

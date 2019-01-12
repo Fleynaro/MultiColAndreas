@@ -326,7 +326,7 @@ int ColAndreasWorld::performRayTestAngleEx(const btVector3& Start, const btVecto
 }
 
 
-int ColAndreasWorld::performRayTestAll(const btVector3& Start, const btVector3& End, btAlignedObjectArray < btVector3 >& Result, int ModelIDs[], int size, int world)
+int ColAndreasWorld::performRayTestAll(const btVector3& Start, const btVector3& End, ColAndreasMultiData *data, int size, int world)
 {
 	btCollisionWorld::AllHitsRayResultCallback RayCallback(Start, End);
 	btCollisionWorld::AllHitsRayResultCallback RayCallback2(Start, End);
@@ -340,9 +340,9 @@ int ColAndreasWorld::performRayTestAll(const btVector3& Start, const btVector3& 
 		if (RayCallback.m_hitPointWorld.size() <= size_)
 		{
 			for (int i = 0; i < RayCallback.m_hitPointWorld.size(); i++) {
-				ModelIDs[i] = RayCallback.m_collisionObjects[i]->getUserIndex();
+				data[i].modelId = RayCallback.m_collisionObjects[i]->getUserIndex();
+				data[i].pos = RayCallback.m_hitPointWorld[i];
 			}
-			Result = RayCallback.m_hitPointWorld;
 			size_ -= RayCallback.m_hitPointWorld.size();
 		}
 	}
@@ -353,12 +353,14 @@ int ColAndreasWorld::performRayTestAll(const btVector3& Start, const btVector3& 
 		{
 			for (int i = 0; i < RayCallback2.m_hitPointWorld.size(); i++) {
 				int j = i + (size - size_); //merging the previous and current arrays
-				ModelIDs[j] = RayCallback2.m_collisionObjects[i]->getUserIndex();
-				Result[j] = RayCallback2.m_hitPointWorld[i];
+				data[i].modelId = RayCallback2.m_collisionObjects[i]->getUserIndex();
+				data[i].pos = RayCallback2.m_hitPointWorld[i];
 			}
 			size_ = 0;
 		}
 	}
+
+
 	return (size_ < size);
 }
 
@@ -451,6 +453,100 @@ int ColAndreasWorld::performContactTest(uint16_t modelid, btVector3& objectPos, 
 	delete colMapRigidBody;
 	
 	return callback.collided || callback2.collided;
+}
+
+int ColAndreasWorld::findShelter(btVector3 & pos1, btVector3 & pos2, btVector3 & Result, int world)
+{
+	const int colSize = 10;
+	const float checkDist = 10.0;
+
+
+	float
+		dist = pos1.distance(pos2) + checkDist,
+		alpha = atan2(pos1.getY() - pos2.getY(), pos1.getX() - pos2.getX()),
+		beta = 0.0f,
+		delta = 0.0f,
+		resDist = 0.0f;
+	
+	float add = 180.0 * (3.0) / (3.14 * dist);
+	if (add < beta / 15.0) add = beta / 15.0;
+
+	while (beta < 45.0) {
+		beta += add;
+
+		for (int j = 0; j < 2; j++) {
+			delta = alpha + (beta * (-1 + 2 * j)) * DEG_TO_RAD;
+			btVector3
+				vector = btVector3(cos(delta), sin(delta), 0.0),
+				start = pos2 + vector * checkDist,
+				end = pos2 + vector * dist;
+			end.setZ(pos1.getZ() + 0.1);
+			ColAndreasMultiData data[colSize];
+			if (collisionWorld->performRayTestAll(start, end, data, colSize, world))
+			{
+				if (data[0].modelId != 0) {
+					int size = 0;
+					for (int i = 0; i < colSize && data[i].modelId != 0; i++) {
+						data[i].dist = start.distance(data[i].pos);
+						size++;
+					}
+
+					std::sort(data, data + colSize, [](const ColAndreasMultiData a, const ColAndreasMultiData b) {
+						return a.dist != 0.0 && b.dist != 0.0 && (a.dist < b.dist);
+					});
+
+					for (int i = 0; i < size - 1; i++) {
+						if (data[i].modelId == data[i + 1].modelId) {
+							if (i < size - 2 && data[i + 2].modelId != 0) {
+								if (data[i + 2].dist - data[i + 1].dist >= 1.0) {
+									resDist = data[i + 1].dist + 0.0001;
+									break;
+								}
+							}
+							else {
+								if (dist - data[i + 1].dist >= 1.0) {
+									resDist = data[i + 1].dist + 0.0001;
+									break;
+								}
+							}
+						}
+						else {
+							if (data[i + 1].modelId != 0) {
+								if (data[i + 1].dist - data[i].dist >= 1.0) {
+									resDist = data[i].dist + 0.0001;
+									break;
+								}
+							}
+							else {
+								if (dist - data[i].dist >= 1.0) {
+									resDist = data[i].dist + 0.0001;
+									break;
+								}
+							}
+						}
+					}
+
+					if (resDist != 0.0) {
+						break;
+					}
+				}
+			}
+		}
+
+		if (resDist != 0.0) {
+			break;
+		}
+	}
+	if (resDist == 0.0) {
+		return 0;
+	}
+
+	Result = pos2 + btVector3(cos(delta), sin(delta), 0.0) * (resDist + 0.4);
+	uint16_t Model = 0;
+	if (collisionWorld->performRayTest(Result, Result + btVector3(0, 0, -10.0), Result, Model, world)) {
+		return 1;
+	}
+	return 0;
 }
 
 void ColAndreasWorld::colandreasInitMap()
