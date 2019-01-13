@@ -458,11 +458,14 @@ int ColAndreasWorld::performContactTest(uint16_t modelid, btVector3& objectPos, 
 int ColAndreasWorld::findShelter(btVector3 & pos1, btVector3 & pos2, btVector3 & Result, int world)
 {
 	const int colSize = 10;
-	const float checkDist = 10.0;
-
+	const float forwardDist = 4.0;
+	const float backDist = 8.0;
 
 	float
-		dist = pos1.distance(pos2) + checkDist,
+		dist = pos1.distance(pos2) + backDist;
+	if (dist - forwardDist <= 2.0) return 0;
+
+	float
 		alpha = atan2(pos1.getY() - pos2.getY(), pos1.getX() - pos2.getX()),
 		beta = 0.0f,
 		delta = 0.0f,
@@ -478,7 +481,7 @@ int ColAndreasWorld::findShelter(btVector3 & pos1, btVector3 & pos2, btVector3 &
 			delta = alpha + (beta * (-1 + 2 * j)) * DEG_TO_RAD;
 			btVector3
 				vector = btVector3(cos(delta), sin(delta), 0.0),
-				start = pos2 + vector * checkDist,
+				start = pos2 + vector * forwardDist,
 				end = pos2 + vector * dist;
 			end.setZ(pos1.getZ() + 0.1);
 			ColAndreasMultiData data[colSize];
@@ -487,7 +490,7 @@ int ColAndreasWorld::findShelter(btVector3 & pos1, btVector3 & pos2, btVector3 &
 				if (data[0].modelId != 0) {
 					int size = 0;
 					for (int i = 0; i < colSize && data[i].modelId != 0; i++) {
-						data[i].dist = start.distance(data[i].pos);
+						data[i].dist = start.distance(data[i].pos) + forwardDist;
 						size++;
 					}
 
@@ -498,9 +501,11 @@ int ColAndreasWorld::findShelter(btVector3 & pos1, btVector3 & pos2, btVector3 &
 					for (int i = 0; i < size - 1; i++) {
 						if (data[i].modelId == data[i + 1].modelId) {
 							if (i < size - 2 && data[i + 2].modelId != 0) {
-								if (data[i + 2].dist - data[i + 1].dist >= 1.0) {
-									resDist = data[i + 1].dist + 0.0001;
-									break;
+								if (data[i + 2].modelId != data[i].modelId) {
+									if (data[i + 2].dist - data[i + 1].dist >= 1.0) {
+										resDist = data[i + 1].dist + 0.0001;
+										break;
+									}
 								}
 							}
 							else {
