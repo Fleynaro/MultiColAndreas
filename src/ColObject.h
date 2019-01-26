@@ -5,6 +5,7 @@
 #include "ColAndreasDatabaseReader.h"
 #include "ColAndreas.h"
 #include "LodArray.h"
+#include <shared_mutex>
 #include <mutex>
 
 #define MAX_MAP_OBJECTS 65000
@@ -109,7 +110,7 @@ private:
 class ObjectManager
 {
 public:
-	mutex *g_lock;
+	shared_mutex *g_lock;
 	ObjectManager();
 	int addObjectManager(ColAndreasMapObject* mapObject);
 	int removeObjectManager(const uint16_t index);

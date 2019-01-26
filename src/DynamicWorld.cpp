@@ -11,7 +11,7 @@ ColAndreasWorld::ColAndreasWorld()
 	entityManager = new EntityManager();
 }
 
-btDynamicsWorld* ColAndreasWorld::GetDynamicWorld(int world)
+btDynamicsWorld* ColAndreasWorld::getDynamicWorld(int world)
 {
 	map<int, btDynamicsWorld*>::iterator p;
 	p = worlds.find(world);
@@ -92,8 +92,8 @@ int ColAndreasWorld::performRayTest(const btVector3& Start, const btVector3& End
 	btCollisionWorld::ClosestRayResultCallback RayCallback(Start, End);
 	btCollisionWorld::ClosestRayResultCallback RayCallback2(Start, End);
 
-	GetDynamicWorld(ALL_WORLDS)->rayTest(Start, End, RayCallback);
-	GetDynamicWorld(world)->rayTest(Start, End, RayCallback2);
+	getDynamicWorld(ALL_WORLDS)->rayTest(Start, End, RayCallback);
+	getDynamicWorld(world)->rayTest(Start, End, RayCallback2);
 
 	btVector3 ResultAllWorlds = End;
 	model = 0;
@@ -115,13 +115,13 @@ int ColAndreasWorld::performRayTest(const btVector3& Start, const btVector3& End
 	return (model != 0);
 }
 
-int ColAndreasWorld::performRayTestExtraID(const btVector3& Start, const btVector3& End, btVector3& Result, const int type, uint16_t& data, int world)
+int ColAndreasWorld::performRayTestExtraID(const btVector3& Start, const btVector3& End, btVector3& Result, const int type, uint32_t& data, uint16_t& model, int world)
 {
 	btCollisionWorld::ClosestRayResultCallback RayCallback(Start, End);
 	btCollisionWorld::ClosestRayResultCallback RayCallback2(Start, End);
 
-	GetDynamicWorld(ALL_WORLDS)->rayTest(Start, End, RayCallback);
-	GetDynamicWorld(world)->rayTest(Start, End, RayCallback2);
+	getDynamicWorld(ALL_WORLDS)->rayTest(Start, End, RayCallback);
+	getDynamicWorld(world)->rayTest(Start, End, RayCallback2);
 
 	btVector3 ResultAllWorlds = End;
 	
@@ -133,10 +133,14 @@ int ColAndreasWorld::performRayTestExtraID(const btVector3& Start, const btVecto
 	if (RayCallback.hasHit())
 	{
 		Result = ResultAllWorlds = RayCallback.m_hitPointWorld;
+		model = RayCallback.m_collisionObject->getUserIndex();
 		if (data == 0)
 		{
 			ColAndreasObjectTracker* tracker = (ColAndreasObjectTracker*)RayCallback.m_collisionObject->getUserPointer();
-			data = tracker->extraData[type];
+			if (tracker)
+			{
+				data = tracker->extraData[type];
+			}
 		}
 		hit = true;
 	}
@@ -147,9 +151,10 @@ int ColAndreasWorld::performRayTestExtraID(const btVector3& Start, const btVecto
 			Result = ResultAllWorlds;
 		}
 		else {
-			if (data == 0)
+			model = RayCallback2.m_collisionObject->getUserIndex();
+			ColAndreasObjectTracker* tracker = (ColAndreasObjectTracker*)RayCallback2.m_collisionObject->getUserPointer();
+			if (tracker)
 			{
-				ColAndreasObjectTracker* tracker = (ColAndreasObjectTracker*)RayCallback2.m_collisionObject->getUserPointer();
 				data = tracker->extraData[type];
 			}
 		}
@@ -158,13 +163,13 @@ int ColAndreasWorld::performRayTestExtraID(const btVector3& Start, const btVecto
 	return hit;
 }
 
-int ColAndreasWorld::performRayTestID(const btVector3& Start, const btVector3& End, btVector3& Result, uint16_t& index, int world)
+int ColAndreasWorld::performRayTestID(const btVector3& Start, const btVector3& End, btVector3& Result, uint32_t& index, int world)
 {
 	btCollisionWorld::ClosestRayResultCallback RayCallback(Start, End);
 	btCollisionWorld::ClosestRayResultCallback RayCallback2(Start, End);
 
-	GetDynamicWorld(ALL_WORLDS)->rayTest(Start, End, RayCallback);
-	GetDynamicWorld(world)->rayTest(Start, End, RayCallback2);
+	getDynamicWorld(ALL_WORLDS)->rayTest(Start, End, RayCallback);
+	getDynamicWorld(world)->rayTest(Start, End, RayCallback2);
 
 	btVector3 ResultAllWorlds = End;
 	
@@ -210,8 +215,8 @@ int ColAndreasWorld::performRayTestEx(const btVector3& Start, const btVector3& E
 	btCollisionWorld::ClosestRayResultCallback RayCallback(Start, End);
 	btCollisionWorld::ClosestRayResultCallback RayCallback2(Start, End);
 
-	GetDynamicWorld(ALL_WORLDS)->rayTest(Start, End, RayCallback);
-	GetDynamicWorld(world)->rayTest(Start, End, RayCallback2);
+	getDynamicWorld(ALL_WORLDS)->rayTest(Start, End, RayCallback);
+	getDynamicWorld(world)->rayTest(Start, End, RayCallback2);
 
 	btVector3 ResultAllWorlds = End;
 	model = 0;
@@ -243,8 +248,8 @@ int ColAndreasWorld::performRayTestAngle(const btVector3& Start, const btVector3
 	btCollisionWorld::ClosestRayResultCallback RayCallback(Start, End);
 	btCollisionWorld::ClosestRayResultCallback RayCallback2(Start, End);
 
-	GetDynamicWorld(ALL_WORLDS)->rayTest(Start, End, RayCallback);
-	GetDynamicWorld(world)->rayTest(Start, End, RayCallback2);
+	getDynamicWorld(ALL_WORLDS)->rayTest(Start, End, RayCallback);
+	getDynamicWorld(world)->rayTest(Start, End, RayCallback2);
 
 	btVector3 ResultAllWorlds = End;
 	model = 0;
@@ -281,8 +286,8 @@ int ColAndreasWorld::performRayTestAngleEx(const btVector3& Start, const btVecto
 	btCollisionWorld::ClosestRayResultCallback RayCallback(Start, End);
 	btCollisionWorld::ClosestRayResultCallback RayCallback2(Start, End);
 
-	GetDynamicWorld(ALL_WORLDS)->rayTest(Start, End, RayCallback);
-	GetDynamicWorld(world)->rayTest(Start, End, RayCallback2);
+	getDynamicWorld(ALL_WORLDS)->rayTest(Start, End, RayCallback);
+	getDynamicWorld(world)->rayTest(Start, End, RayCallback2);
 
 	btVector3 ResultAllWorlds = End;
 	model = 0;
@@ -331,8 +336,8 @@ int ColAndreasWorld::performRayTestAll(const btVector3& Start, const btVector3& 
 	btCollisionWorld::AllHitsRayResultCallback RayCallback(Start, End);
 	btCollisionWorld::AllHitsRayResultCallback RayCallback2(Start, End);
 
-	GetDynamicWorld(ALL_WORLDS)->rayTest(Start, End, RayCallback);
-	GetDynamicWorld(world)->rayTest(Start, End, RayCallback2);
+	getDynamicWorld(ALL_WORLDS)->rayTest(Start, End, RayCallback);
+	getDynamicWorld(world)->rayTest(Start, End, RayCallback2);
 
 	int size_ = size;
 	if (RayCallback.hasHit())
@@ -370,8 +375,8 @@ int ColAndreasWorld::performRayTestReflection(const btVector3& Start, const btVe
 	btCollisionWorld::ClosestRayResultCallback RayCallback(Start, End);
 	btCollisionWorld::ClosestRayResultCallback RayCallback2(Start, End);
 
-	GetDynamicWorld(ALL_WORLDS)->rayTest(Start, End, RayCallback);
-	GetDynamicWorld(world)->rayTest(Start, End, RayCallback2);
+	getDynamicWorld(ALL_WORLDS)->rayTest(Start, End, RayCallback);
+	getDynamicWorld(world)->rayTest(Start, End, RayCallback2);
 
 	btVector3 ResultAllWorlds = End;
 	model = 0;
@@ -411,8 +416,8 @@ int ColAndreasWorld::performRayTestNormal(const btVector3& Start, const btVector
 	btCollisionWorld::ClosestRayResultCallback RayCallback(Start, End);
 	btCollisionWorld::ClosestRayResultCallback RayCallback2(Start, End);
 
-	GetDynamicWorld(ALL_WORLDS)->rayTest(Start, End, RayCallback);
-	GetDynamicWorld(world)->rayTest(Start, End, RayCallback2);
+	getDynamicWorld(ALL_WORLDS)->rayTest(Start, End, RayCallback);
+	getDynamicWorld(world)->rayTest(Start, End, RayCallback2);
 
 	btVector3 ResultAllWorlds = End;
 	model = 0;
@@ -446,8 +451,8 @@ int ColAndreasWorld::performContactTest(uint16_t modelid, btVector3& objectPos, 
 	btRigidBody::btRigidBodyConstructionInfo meshRigidBodyCI(0, colMapObjectPosition, colConvex[colindex], btVector3(0, 0, 0));
 	btRigidBody* colMapRigidBody = new btRigidBody(meshRigidBodyCI);
 	
-	GetDynamicWorld(ALL_WORLDS)->contactTest(colMapRigidBody, callback);
-	GetDynamicWorld(world)->contactTest(colMapRigidBody, callback2);
+	getDynamicWorld(ALL_WORLDS)->contactTest(colMapRigidBody, callback);
+	getDynamicWorld(world)->contactTest(colMapRigidBody, callback2);
 	
 	delete colMapRigidBody->getMotionState();
 	delete colMapRigidBody;
@@ -557,17 +562,15 @@ int ColAndreasWorld::findShelter(btVector3 & pos1, btVector3 & pos2, btVector3 &
 void ColAndreasWorld::colandreasInitMap()
 {
 	// Create water map mesh
-	mapWaterMesh = new MapWaterMesh(GetDynamicWorld(ALL_WORLDS));
+	mapWaterMesh = new MapWaterMesh(getDynamicWorld(ALL_WORLDS));
 
 	// Create all map object
-	InitCollisionMap(GetDynamicWorld(ALL_WORLDS), this->removedManager);
+	InitCollisionMap(getDynamicWorld(ALL_WORLDS), this->removedManager);
 }
 
 uint16_t ColAndreasWorld::createColAndreasMapObject(uint16_t addtomanager, uint16_t modelid, const btQuaternion& objectRot, const btVector3& objectPos, int world)
 {
-	objectManager->g_lock->lock();
-	ColAndreasMapObject* mapObject = new ColAndreasMapObject(modelid, objectRot, objectPos, GetDynamicWorld(world));
-	objectManager->g_lock->unlock();
+	ColAndreasMapObject* mapObject = new ColAndreasMapObject(modelid, objectRot, objectPos, getDynamicWorld(world));
 	if (addtomanager)
 	{
 		uint16_t index = 0;

@@ -67,7 +67,7 @@ cell AMX_NATIVE_CALL ColAndreasNatives::CA_RayCastLineID(AMX *amx, cell *params)
 	btVector3 Start = btVector3(btScalar(amx_ctof(params[1]) + 0.00001), btScalar(amx_ctof(params[2]) + 0.00001), btScalar(amx_ctof(params[3]) + 0.00001));
 	btVector3 End = btVector3(btScalar(amx_ctof(params[4])), btScalar(amx_ctof(params[5])), btScalar(amx_ctof(params[6])));
 	btVector3 Result;
-	uint16_t Index = 0;
+	uint32_t Index = 0;
 	int world = params[10];
 
 	if (collisionWorld->performRayTestID(Start, End, Result, Index, world))
@@ -89,26 +89,28 @@ cell AMX_NATIVE_CALL ColAndreasNatives::CA_RayCastLineID(AMX *amx, cell *params)
 
 cell AMX_NATIVE_CALL ColAndreasNatives::CA_RayCastLineExtraID(AMX *amx, cell *params)
 {
-	cell* addr[3];
+	cell* addr[4];
 
 	// Adding a small value prevents a potential crash if all values are the same
 	btVector3 Start = btVector3(btScalar(amx_ctof(params[2]) + 0.00001), btScalar(amx_ctof(params[3]) + 0.00001), btScalar(amx_ctof(params[4]) + 0.00001));
 	btVector3 End = btVector3(btScalar(amx_ctof(params[5])), btScalar(amx_ctof(params[6])), btScalar(amx_ctof(params[7])));
 	btVector3 Result;
-	uint16_t Data = 0;
-	int world = params[11];
+	uint32_t Data = 0;
+	uint16_t Model = 0;
+	int world = params[12];
 
-	if (collisionWorld->performRayTestExtraID(Start, End, Result, params[1], Data, world))
+	if (collisionWorld->performRayTestExtraID(Start, End, Result, params[1], Data, Model, world))
 	{
 		//Get our adderesses for the last 3
 		amx_GetAddr(amx, params[8], &addr[0]);
 		amx_GetAddr(amx, params[9], &addr[1]);
 		amx_GetAddr(amx, params[10], &addr[2]);
+		amx_GetAddr(amx, params[11], &addr[3]);
 
 		*addr[0] = amx_ftoc(Result.getX());
 		*addr[1] = amx_ftoc(Result.getY());
 		*addr[2] = amx_ftoc(Result.getZ());
-
+		*addr[3] = Model;
 		return Data;
 	}
 	return 0;

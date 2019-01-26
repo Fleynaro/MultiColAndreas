@@ -7,24 +7,23 @@ void Entity::update()
 {
 	this->updateState();
 
-	collisionWorld->objectManager->g_lock->lock();
+	std::unique_lock<std::shared_mutex> lock(*collisionWorld->objectManager->g_lock);
 	setMapObjectPosition(this->pos);
 	setMapObjectRotation(this->rot);
-	collisionWorld->objectManager->g_lock->unlock();
 }
 
 void Entity::setMapObjectPosition(btVector3& position)
 {
 	this->colMap->getRigidBody()->setWorldTransform(btTransform(this->colMap->getRigidBody()->getWorldTransform().getRotation(), position));
-	collisionWorld->GetDynamicWorld(this->oldWorld)->removeRigidBody(this->colMap->getRigidBody());
-	collisionWorld->GetDynamicWorld(this->world)->addRigidBody(this->colMap->getRigidBody());
+	collisionWorld->getDynamicWorld(this->oldWorld)->removeRigidBody(this->colMap->getRigidBody());
+	collisionWorld->getDynamicWorld(this->world)->addRigidBody(this->colMap->getRigidBody());
 }
 
 void Entity::setMapObjectRotation(btQuaternion& rotation)
 {
 	this->colMap->getRigidBody()->setWorldTransform(btTransform(rotation, this->colMap->getRigidBody()->getWorldTransform().getOrigin()));
-	collisionWorld->GetDynamicWorld(this->oldWorld)->removeRigidBody(this->colMap->getRigidBody());
-	collisionWorld->GetDynamicWorld(this->world)->addRigidBody(this->colMap->getRigidBody());
+	collisionWorld->getDynamicWorld(this->oldWorld)->removeRigidBody(this->colMap->getRigidBody());
+	collisionWorld->getDynamicWorld(this->world)->addRigidBody(this->colMap->getRigidBody());
 }
 
 
@@ -43,16 +42,15 @@ Entity::Vehicle::Vehicle(int id) {
 
 void Entity::Vehicle::createColObject()
 {
-	collisionWorld->objectManager->g_lock->lock();
+	std::unique_lock<std::shared_mutex> lock(*collisionWorld->objectManager->g_lock);
 	this->colMap = new ColAndreasMapObject(
 		this->vehicle.getModelId(),
 		this->rot,
 		this->pos,
-		collisionWorld->GetDynamicWorld(this->world)
+		collisionWorld->getDynamicWorld(this->world)
 	);
 	ColAndreasObjectTracker *tracker = (ColAndreasObjectTracker *)this->colMap->getRigidBody()->getUserPointer();
 	tracker->extraData[0] = this->getId();
-	collisionWorld->objectManager->g_lock->unlock();
 }
 
 void Entity::Vehicle::updateState()
@@ -85,16 +83,15 @@ Entity::Player::Player(int id) {
 
 void Entity::Player::createColObject()
 {
-	collisionWorld->objectManager->g_lock->lock();
+	std::unique_lock<std::shared_mutex> lock(*collisionWorld->objectManager->g_lock);
 	this->colMap = new ColAndreasMapObject(
 		this->player.getSkinId(),
 		this->rot,
 		this->pos,
-		collisionWorld->GetDynamicWorld(this->world)
+		collisionWorld->getDynamicWorld(this->world)
 	);
 	ColAndreasObjectTracker *tracker = (ColAndreasObjectTracker *)this->colMap->getRigidBody()->getUserPointer();
 	tracker->extraData[0] = this->getId();
-	collisionWorld->objectManager->g_lock->unlock();
 }
 
 void Entity::Player::updateState()

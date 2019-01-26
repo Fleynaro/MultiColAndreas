@@ -115,6 +115,7 @@ native CA_RayCastLineID(Float:StartX, Float:StartY, Float:StartZ, Float:EndX, Fl
 <param name="Float:StartX, Float:StartY, Float:StartZ">The beginning point of the ray</param>
 <param name="Float:EndX, Float:EndY, Float:EndZ">The ending point of the ray</param>
 <param name="&Float:x, &Float:y, &Float:z">The point that the ray collided</param>
+<param name="type">ModelId</param>
 <returns>
 	-1 if the ray collided with a static object or water
     -1 if the extra ID is unmodified
@@ -125,7 +126,7 @@ native CA_RayCastLineID(Float:StartX, Float:StartY, Float:StartZ, Float:EndX, Fl
     This only works with objects created with `add` enabled in `CA_CreateObject`, such as the objects created by the "_DC" functions
 </remarks>
 \**--------------------------------------------------------------------------**/
-native CA_RayCastLineExtraID(type, Float:StartX, Float:StartY, Float:StartZ, Float:EndX, Float:EndY, Float:EndZ, &Float:x, &Float:y, &Float:z, world = 0);
+native CA_RayCastLineExtraID(type, Float:StartX, Float:StartY, Float:StartZ, Float:EndX, Float:EndY, Float:EndZ, &Float:x, &Float:y, &Float:z, &model, world = 0);
 
 /**--------------------------------------------------------------------------**\
 <summary>
@@ -396,6 +397,30 @@ native CA_AttachObjectToObject(index1, index2, Float:x, Float:y, Float:z, Float:
 </returns>
 \**--------------------------------------------------------------------------**/
 native CA_DetachObject(index);
+
+
+
+
+
+native CA_FindShelter(Float: x1, Float: y1, Float: z1, Float: x2, Float: y2, Float: z2, &Float: x, &Float: y, &Float: z, world = 0);
+
+native CA_AddVehicle(vehicleid);
+native CA_AddPlayer(playerid);
+
+native CA_RemoveVehicle(vehicleid);
+native CA_RemovePlayer(playerid);
+
+//temporary solution
+native CA_ExecuteUpdate();
+forward CA_ExecuteUpdateCallback();
+public CA_ExecuteUpdateCallback()
+{
+	return CA_ExecuteUpdate();
+}
+stock CA_StartUpdate(delay) {
+	SetTimer("CA_ExecuteUpdateCallback", delay, true);
+	return 1;
+}
 
 
 

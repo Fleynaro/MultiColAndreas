@@ -275,26 +275,25 @@ ObjectManager::ObjectManager()
 	{
 		slotUsed[i] = false;
 	}
-	g_lock = new mutex();
+	g_lock = new shared_mutex();
+	int a = 5;
 }
 
 int ObjectManager::attachObjectToObject(const uint16_t index1, const uint16_t index2, btVector3& position, btQuaternion& rotation)
 {
 	if (!validObjectManager(index1) || !validObjectManager(index2) || mapObjects[index1]->isAttched() || mapObjects[index2]->isAttched()) return 0;
-
-	//logprintf("ObjectManager attachObjectToObject: index1,2=%i,%i; pos=%f,%f,%f, rot=%f,%f,%f,%f", index1, index2, position.getX(), position.getY(), position.getZ(), rotation.getX(), rotation.getY(), rotation.getZ(), rotation.getW());
-	g_lock->lock();
+	
+	std::unique_lock<std::shared_mutex> lock(*g_lock);
 	mapObjects[index1]->attachToMapObject(mapObjects[index2], position, rotation);
-	g_lock->unlock();
 	return 1;
 }
  
 int ObjectManager::detach(const uint16_t index)
 {
 	if (!validObjectManager(index) || !mapObjects[index]->isAttched()) return 0;
-	g_lock->lock();
+	
+	std::unique_lock<std::shared_mutex> lock(*g_lock);
 	mapObjects[index]->detach();
-	g_lock->unlock();
 	return 1;
 }
 
@@ -324,11 +323,10 @@ int ObjectManager::addObjectManager(ColAndreasMapObject* mapObject)
 	{
 		if (!slotUsed[i])
 		{
-			g_lock->lock();
+			std::unique_lock<std::shared_mutex> lock(*g_lock);
 			slotUsed[i] = true;
 			mapObjects[i] = mapObject;
 			mapObjects[i]->tracker->realIndex = i;
-			g_lock->unlock();
 			return i;
 		}
 	}
@@ -339,10 +337,9 @@ int ObjectManager::removeObjectManager(const uint16_t index)
 {
 	if (slotUsed[index])
 	{
-		g_lock->lock();
+		std::unique_lock<std::shared_mutex> lock(*g_lock);
 		slotUsed[index] = false;
 		delete mapObjects[index];
-		g_lock->unlock();
 		return 1;
 	}
 	return 0;
@@ -361,9 +358,8 @@ int ObjectManager::setObjectPosition(const uint16_t index, btVector3& position)
 {
 	if (slotUsed[index])
 	{
-		g_lock->lock();
+		std::unique_lock<std::shared_mutex> lock(*g_lock);
 		mapObjects[index]->setMapObjectPosition(position);
-		g_lock->unlock();
 		return 1;
 	}
 	return 0;
@@ -373,9 +369,8 @@ int ObjectManager::setObjectRotation(const uint16_t index, btQuaternion& rotatio
 {
 	if (slotUsed[index])
 	{
-		g_lock->lock();
+		std::unique_lock<std::shared_mutex> lock(*g_lock);
 		mapObjects[index]->setMapObjectRotation(rotation);
-		g_lock->unlock();
 		return 1;
 	}
 	return 0;

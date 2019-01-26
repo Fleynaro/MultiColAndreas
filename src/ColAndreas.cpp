@@ -5,9 +5,6 @@
 #include <string>
 #include <vector>
 
-#include <thread>
-#include <mutex>
-
 using namespace std;
 
 #include <btBulletDynamicsCommon.h>
@@ -16,11 +13,13 @@ using namespace std;
 #include "Natives.h"
 #include <chrono>
 #include "NetGame.h"
+#include "API.h"
 
 bool colInit = false;
 bool colDataLoaded = false;
 cell nullAddress = NULL;
 void **ppPluginData;
+API::ColAndreas *api;
 
 ColAndreasWorld* collisionWorld = NULL;
 logprintf_t		logprintf;
@@ -65,29 +64,18 @@ PLUGIN_EXPORT bool PLUGIN_CALL Load(void **ppData)
 	logprintf("  ColAndreas Loaded");
 	logprintf("   " CA_VERSION);
 	logprintf("*********************");
+
+	api = new API::ColAndreas();
 	return true;
 }
 
-//Function export for other plugins(for example PathFinderCA)
 extern "C" {
-	EXPORT mutex *CA_GetMutex()
-	{
-		return collisionWorld->objectManager->g_lock;
+
+	EXPORT API::ColAndreas *CA_getAPI() {
+		return api;
 	}
 
-	EXPORT int CA_RayCastLine(float x1, float y1, float z1, float x2, float y2, float z2, float &x3, float &y3, float &z3, int world)
-	{
-		uint16_t Model = 0;
-		btVector3 Result;
-		CA_GetMutex()->lock();
-		collisionWorld->performRayTest(btVector3(x1, y1, z1), btVector3(x2, y2, z2), Result, Model, world);
-		CA_GetMutex()->unlock();
-		x3 = Result.getX();
-		y3 = Result.getY();
-		z3 = Result.getZ();
-		return Model;
-	}
-}
+};
 
 // Plugin unload
 PLUGIN_EXPORT void PLUGIN_CALL Unload()
@@ -98,6 +86,7 @@ PLUGIN_EXPORT void PLUGIN_CALL Unload()
 	logprintf("*ColAndreas Unloaded*");
 	logprintf("*********************");
 
+	delete api;
 }
 
 // Function list

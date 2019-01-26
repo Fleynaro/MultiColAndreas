@@ -5,6 +5,7 @@
 #include "ColObject.h"
 #include "ColAndreas.h"
 #include <map>
+#include <shared_mutex>
 #include <mutex>
 #include <algorithm>
 
@@ -91,8 +92,8 @@ public:
 	void setMyExtraID(uint16_t index, int type, int data);
 	int getMyExtraID(uint16_t index, int type);
 	int performRayTest(const btVector3& Start, const btVector3& End, btVector3& Result, uint16_t& model, int world = 0);
-	int performRayTestExtraID(const btVector3& Start, const btVector3& End, btVector3& Result, const int type, uint16_t& data, int world = 0);
-	int performRayTestID(const btVector3& Start, const btVector3& End, btVector3& Result, uint16_t& index, int world = 0);
+	int performRayTestExtraID(const btVector3& Start, const btVector3& End, btVector3& Result, const int type, uint32_t& data, uint16_t& model, int world = 0);
+	int performRayTestID(const btVector3& Start, const btVector3& End, btVector3& Result, uint32_t& index, int world = 0);
 	int performRayTestEx(const btVector3& Start, const btVector3& End, btVector3& Result, btQuaternion& Rotation, btVector3& Position, uint16_t& model, int world = 0);
 	int performRayTestAngle(const btVector3& Start, const btVector3& End, btVector3& Result, btScalar& RX, btScalar& RY, btScalar& RZ, uint16_t& model, int world = 0);
 	int performRayTestAngleEx(const btVector3& Start, const btVector3& End, btVector3& Result, btScalar& RX, btScalar& RY, btScalar& RZ, btQuaternion& Rotation, btVector3& Position, uint16_t& model, int world = 0);
@@ -101,7 +102,7 @@ public:
 	int performRayTestNormal(const btVector3& Start, const btVector3& End, btVector3& Result, btVector3& Normal, uint16_t& model, int world = 0);
 	int performContactTest(uint16_t modelid, btVector3& objectPos, btQuaternion& objectRot, int world = 0);
 	int findShelter(btVector3& pos1, btVector3 & pos2, btVector3& Result, int world = 0);
-	btDynamicsWorld* ColAndreasWorld::GetDynamicWorld(int world);
+	btDynamicsWorld* ColAndreasWorld::getDynamicWorld(int world);
 
 	uint16_t createColAndreasMapObject(uint16_t addtomanager, uint16_t modelid, const btQuaternion& objectRot, const btVector3& objectPos, int world = 0);
 	uint16_t getModelRef(uint16_t model);
